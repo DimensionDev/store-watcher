@@ -60,6 +60,10 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			CurrentVersion:  version,
 			CurrentDate:     time.Now(),
 		}
+		if payload.PreviousDate != nil {
+			delta := payload.CurrentDate.Sub(*payload.PreviousDate)
+			payload.Delta = &delta
+		}
 		go func() {
 			err := w.OnUpdate(payload)
 			if err != nil {

@@ -14,6 +14,7 @@ BCC_ADDRESS = None
 
 payload = json.load(sys.stdin)
 payload["previous_date"] = payload["previous_date"] or "N/A"
+payload["delta"] = payload["delta"] or "N/A"
 
 timestamp = datetime.now().strftime("%Y-%m-%d")
 subject = "[{timestamp}] {name} ({platform}) | {previous_version} -> {current_version}"
@@ -26,6 +27,8 @@ Previous publish date: {previous_date}
 
 Current version: {current_version}
 Current publish date: {current_date}
+
+Delta: {delta}
 
 Link: {link}\
 """

@@ -28,13 +28,14 @@ type LatestState struct {
 }
 
 type ChangedMessage struct {
-	Name            string     `json:"name"`
-	Platform        string     `json:"platform"`
-	Link            string     `json:"link"`
-	PreviousVersion string     `json:"previous_version"`
-	PreviousDate    *time.Time `json:"previous_date"`
-	CurrentVersion  string     `json:"current_version"`
-	CurrentDate     time.Time  `json:"current_date"`
+	Name            string         `json:"name"`
+	Platform        string         `json:"platform"`
+	Link            string         `json:"link"`
+	PreviousVersion string         `json:"previous_version"`
+	PreviousDate    *time.Time     `json:"previous_date"`
+	CurrentVersion  string         `json:"current_version"`
+	CurrentDate     time.Time      `json:"current_date"`
+	Delta           *time.Duration `json:"delta"`
 }
 
 func (m *ChangedMessage) String() string {
