@@ -17,8 +17,8 @@ type Configure struct {
 
 func loadConfigure(name string) (configure *Configure, err error) {
 	configure = &Configure{
-		Interval:            "0 * * * *",  // at minute 0
-		LatestStateInterval: "30 * * * *", // at minute 30
+		Interval:            "0 0 * * * *",  // at minute 0
+		LatestStateInterval: "0 30 * * * *", // at minute 30
 		UserAgent:           "store-watcher/1.0 powered-by dimension.im",
 		LatestStatePath:     "./latest-state.json",
 		HookProgram:         "./on-update.py",

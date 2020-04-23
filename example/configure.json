@@ -22,7 +22,7 @@
     {
       "name": "Maskbook",
       "platform": "App Store",
-      "target": "https://apps.apple.com/app/id1478382964",
+      "target": "https://apps.apple.com/us/app/maskbook/id1478382964",
       "pattern": ">Version (?P<version>[\\d+\\.]+)<\\/"
     },
     {

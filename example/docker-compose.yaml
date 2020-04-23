@@ -1,0 +1,8 @@
+version: "3"
+services: 
+  watcher:
+    image: dimensiondev/store-watcher:latest
+    volumes:
+      - ./configure.json:/configure.json
+      - ./latest-state.json:/latest-state.json
+      - ./on-update.py:/on-update.py
