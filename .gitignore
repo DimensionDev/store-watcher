@@ -1,0 +1,6 @@
+/.idea/
+
+/watcher
+/configure.json
+/latest-state.json
+/on-update.py

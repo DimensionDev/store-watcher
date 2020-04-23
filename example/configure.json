@@ -1,0 +1,35 @@
+{
+  "watches": [
+    {
+      "name": "Maskbook",
+      "platform": "Chrome Store",
+      "target": "https://chrome.google.com/webstore/detail/maskbook/jkoeaghipilijlahjplgbfiocjhldnap",
+      "pattern": "version\" content=\"(?P<version>[\\d\\.]+)\""
+    },
+    {
+      "name": "Maskbook",
+      "platform": "Firefox Store",
+      "target": "https://addons.mozilla.org/en-US/firefox/addon/maskbook/",
+      "pattern": "version\">(?P<version>[\\d\\.]+)<\\/dd>"
+    },
+    {
+      "name": "Maskbook",
+      "platform": "Opera Beta",
+      "target": "https://addons.opera.com/en/extensions/details/maskbook/",
+      "pattern": "<dt>Version<\\/dt><dd>(?P<version>[\\d+\\.]+)<\\/dd>",
+      "user_agent": "Mozilla/5.0 OPR/ (Edition beta)"
+    },
+    {
+      "name": "Maskbook",
+      "platform": "App Store",
+      "target": "https://apps.apple.com/app/id1478382964",
+      "pattern": ">Version (?P<version>[\\d+\\.]+)<\\/"
+    },
+    {
+      "name": "Maskbook",
+      "platform": "Play Store",
+      "target": "https://play.google.com/store/apps/details?id=com.dimension.maskbook",
+      "pattern": "htlgb\">(?P<version>[\\d+\\.]+)<\\/"
+    }
+  ]
+}

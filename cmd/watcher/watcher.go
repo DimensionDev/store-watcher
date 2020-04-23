@@ -1,0 +1,107 @@
+package main
+
+import (
+	"io/ioutil"
+	"log"
+	"net/http"
+	"regexp"
+	"time"
+
+	"github.com/robfig/cron"
+	"github.com/thoas/go-funk"
+)
+
+type Callback interface {
+	OnUpdate(*ChangedMessage) error
+	OnBackupLatestState(map[string]*LatestState)
+	OnRestoreLatestState() map[string]*LatestState
+}
+
+type Watcher struct {
+	latestUpdate map[string]*LatestState
+	Callback
+}
+
+func (w *Watcher) Start(latestInterval string, targets []*Target) (table *cron.Cron, err error) {
+	table = cron.New()
+	w.latestUpdate = w.OnRestoreLatestState()
+	_ = table.AddFunc(latestInterval, func() {
+		w.OnBackupLatestState(w.latestUpdate)
+	})
+	for _, item := range targets {
+		_ = table.AddFunc(item.Interval, w.makeWatcher(item))
+	}
+	return
+}
+
+func (w *Watcher) makeWatcher(target *Target) func() {
+	log.Printf("Add %s to Watcher", target)
+	re := regexp.MustCompile(target.Pattern)
+	if funk.IndexOfString(re.SubexpNames(), "version") == -1 {
+		log.Fatalf("%s not found `version` regex group", target)
+	}
+	return func() {
+		version := w.fetchVersion(target, re)
+		if version == "" {
+			log.Printf("%s Version info not found", target)
+			return
+		}
+		state := w.getState(target.ID())
+		if state.Version == version {
+			log.Printf("%s No change", target)
+			return
+		}
+		payload := &ChangedMessage{
+			Name:            target.Name,
+			Platform:        target.Platform,
+			Link:            target.Link,
+			PreviousVersion: state.Version,
+			PreviousDate:    state.Updated,
+			CurrentVersion:  version,
+			CurrentDate:     time.Now(),
+		}
+		go func() {
+			err := w.OnUpdate(payload)
+			if err != nil {
+				return
+			}
+			state.Updated = &payload.CurrentDate
+			state.Version = payload.CurrentVersion
+		}()
+	}
+}
+
+func (w *Watcher) fetchVersion(target *Target, re *regexp.Regexp) (version string) {
+	request, _ := http.NewRequest(http.MethodGet, target.Link, nil)
+	if target.UserAgent != "" {
+		request.Header.Set("User-Agent", target.UserAgent)
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return
+	}
+	if response.StatusCode != 200 {
+		return
+	}
+	data, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return
+	}
+	index := funk.IndexOfString(re.SubexpNames(), "version")
+	if index == -1 {
+		return
+	}
+	matched := re.FindStringSubmatch(string(data))
+	version = matched[index]
+	return
+}
+
+func (w *Watcher) getState(name string) *LatestState {
+	if _, ok := w.latestUpdate[name]; !ok {
+		w.latestUpdate[name] = &LatestState{
+			Version: "N/A",
+			Updated: nil,
+		}
+	}
+	return w.latestUpdate[name]
+}
