@@ -20,11 +20,11 @@ go build ./cmd/watcher
 
 ## configure.json [example]
 
-```plain
+```js
 {
-  "interval": "0 * * * *", // at minute 0, fetch all store version info
-  "user_agent": "store-watcher/1.0 powered by dimension.im", // request default user-agent
-  "latest_state_interval": "30 * * * *", // at minute 30, save latest state to file
+  "interval": "0 0 * * * *", // at minute 0, fetch all store version info
+  "user_agent": "store-watcher/1.0 powered-by dimension.im", // request default user-agent
+  "latest_state_interval": "0 30 * * * *", // at minute 30, save latest state to file
   "latest_state_path": "latest-state.json", // latest state save to file path
   "hook_program": "./on-update.py", // observed updated hook program
   "watches": [

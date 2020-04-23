@@ -14,6 +14,12 @@
     },
     {
       "name": "Maskbook",
+      "platform": "Opera",
+      "target": "https://addons.opera.com/en/extensions/details/maskbook/",
+      "pattern": "<dt>Version<\\/dt><dd>(?P<version>[\\d+\\.]+)<\\/dd>"
+    },
+    {
+      "name": "Maskbook",
       "platform": "Opera Beta",
       "target": "https://addons.opera.com/en/extensions/details/maskbook/",
       "pattern": "<dt>Version<\\/dt><dd>(?P<version>[\\d+\\.]+)<\\/dd>",
