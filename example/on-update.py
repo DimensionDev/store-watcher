@@ -16,7 +16,7 @@ payload = json.load(sys.stdin)
 payload["previous_date"] = payload["previous_date"] or "N/A"
 
 timestamp = datetime.now().strftime("%Y-%m-%d")
-subject = "{timestamp} {name} ({platform}) | {previous_version} -> {current_version}"
+subject = "[{timestamp}] {name} ({platform}) | {previous_version} -> {current_version}"
 content = """\
 Product: {name}
 Platform: {platform}
