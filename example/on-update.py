@@ -15,8 +15,8 @@ BCC_ADDRESS = None
 payload = json.load(sys.stdin)
 payload["previous_date"] = payload["previous_date"] or "N/A"
 payload["delta"] = payload["delta"] or "N/A"
+payload["timestamp"] = datetime.now().strftime("%Y-%m-%d")
 
-timestamp = datetime.now().strftime("%Y-%m-%d")
 subject = "[{timestamp}] {name} ({platform}) | {previous_version} -> {current_version}"
 content = """\
 Product: {name}
@@ -41,7 +41,7 @@ requests.post(
         "to": TO_ADDRESS,
         "cc": CC_ADDRESS,
         "bcc": BCC_ADDRESS,
-        "subject": subject.format(timestamp=timestamp, **payload),
+        "subject": subject.format_map(payload),
         "text": content.format_map(payload),
     },
 )
