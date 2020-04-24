@@ -38,16 +38,15 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 	log.Printf("Add %s to Watcher", target)
 	re := regexp.MustCompile(target.Pattern)
 	if funk.IndexOfString(re.SubexpNames(), "version") == -1 {
-		log.Fatalf("%s not found `version` regex group", target)
+		log.Fatalf("%s Not found `version` regex group in `pattern`", target)
 	}
 	return func() {
+		state := w.getState(target.ID())
 		version := w.fetchVersion(target, re)
 		if version == "" {
 			log.Printf("%s Version info not found", target)
 			return
-		}
-		state := w.getState(target.ID())
-		if state.Version == version {
+		} else if state.Version == version {
 			log.Printf("%s No change", target)
 			return
 		}
@@ -64,14 +63,10 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			delta := payload.CurrentDate.Sub(*payload.PreviousDate)
 			payload.Delta = &delta
 		}
-		go func() {
-			err := w.OnUpdate(payload)
-			if err != nil {
-				return
-			}
+		if w.OnUpdate(payload) == nil {
 			state.Updated = &payload.CurrentDate
 			state.Version = payload.CurrentVersion
-		}()
+		}
 	}
 }
 
@@ -80,23 +75,17 @@ func (w *Watcher) fetchVersion(target *Target, re *regexp.Regexp) (version strin
 	if target.UserAgent != "" {
 		request.Header.Set("User-Agent", target.UserAgent)
 	}
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
+	if response, err := http.DefaultClient.Do(request); err != nil {
 		return
-	}
-	if response.StatusCode != 200 {
+	} else if response.StatusCode != 200 {
 		return
-	}
-	data, err := ioutil.ReadAll(response.Body)
-	if err != nil {
+	} else if data, err := ioutil.ReadAll(response.Body); err != nil {
 		return
+	} else {
+		index := funk.IndexOfString(re.SubexpNames(), "version")
+		matched := re.FindStringSubmatch(string(data))
+		version = matched[index]
 	}
-	index := funk.IndexOfString(re.SubexpNames(), "version")
-	if index == -1 {
-		return
-	}
-	matched := re.FindStringSubmatch(string(data))
-	version = matched[index]
 	return
 }
 
