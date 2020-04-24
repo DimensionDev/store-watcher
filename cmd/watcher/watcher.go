@@ -24,8 +24,10 @@ type Watcher struct {
 
 func (w *Watcher) Start(latestInterval string, targets []*Target) (table *cron.Cron, err error) {
 	table = cron.New()
+	log.Print("Restore latest state")
 	w.latestUpdate = w.OnRestoreLatestState()
 	_ = table.AddFunc(latestInterval, func() {
+		log.Print("Backup latest state")
 		w.OnBackupLatestState(w.latestUpdate)
 	})
 	for _, item := range targets {
@@ -50,7 +52,7 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			log.Printf("%s No change", target)
 			return
 		}
-		payload := &ChangedMessage{
+		message := &ChangedMessage{
 			Name:            target.Name,
 			Platform:        target.Platform,
 			Link:            target.Link,
@@ -59,13 +61,17 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			CurrentVersion:  version,
 			CurrentDate:     time.Now(),
 		}
-		if payload.PreviousDate != nil {
-			delta := payload.CurrentDate.Sub(*payload.PreviousDate)
-			payload.Delta = &delta
+		if message.PreviousDate != nil {
+			delta := message.CurrentDate.Sub(*message.PreviousDate)
+			message.Delta = &delta
 		}
-		if w.OnUpdate(payload) == nil {
-			state.Updated = &payload.CurrentDate
-			state.Version = payload.CurrentVersion
+		log.Print(message, " Started")
+		if err := w.OnUpdate(message); err != nil {
+			log.Print(message, err)
+		} else {
+			state.Updated = &message.CurrentDate
+			state.Version = message.CurrentVersion
+			log.Print(message, " End")
 		}
 	}
 }

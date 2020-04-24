@@ -15,22 +15,20 @@ type Configure struct {
 	Watches             []*Target `json:"watches"`
 }
 
-func loadConfigure(name string) (configure *Configure, err error) {
-	configure = &Configure{
+func loadConfigure(name string) (*Configure, error) {
+	configure := &Configure{
 		Interval:            "0 0 * * * *",  // at minute 0
 		LatestStateInterval: "0 30 * * * *", // at minute 30
 		UserAgent:           "store-watcher/1.0 powered-by dimension.im",
 		LatestStatePath:     "./latest-state.json",
 		HookProgram:         "./on-update.py",
 	}
-	if fp, err := os.Open(name); err == nil {
-		data, err := ioutil.ReadAll(fp)
-		if err == nil {
-			err = json.Unmarshal(data, configure)
-		}
-		if err != nil {
-			return nil, err
-		}
+	if fp, err := os.Open(name); err != nil {
+		return nil, err
+	} else if data, err := ioutil.ReadAll(fp); err != nil {
+		return nil, err
+	} else if err = json.Unmarshal(data, configure); err != nil {
+		return nil, err
 	}
 	for _, watch := range configure.Watches {
 		if watch.Interval == "" {
@@ -40,5 +38,5 @@ func loadConfigure(name string) (configure *Configure, err error) {
 			watch.UserAgent = configure.UserAgent
 		}
 	}
-	return
+	return configure, nil
 }
