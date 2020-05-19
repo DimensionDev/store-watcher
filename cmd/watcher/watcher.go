@@ -62,7 +62,7 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			CurrentDate:     time.Now(),
 		}
 		if message.PreviousDate != nil {
-			delta := message.CurrentDate.Sub(*message.PreviousDate)
+			delta := message.CurrentDate.Sub(*message.PreviousDate).String()
 			message.Delta = &delta
 		}
 		log.Print(message, " Started")
