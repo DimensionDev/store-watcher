@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -66,7 +67,7 @@ func (w *Watcher) makeWatcher(target *Target) func() {
 			CurrentDate:     time.Now(),
 		}
 		if message.PreviousDate != nil {
-			delta := message.CurrentDate.Sub(*message.PreviousDate).String()
+			delta := formatDelta(message.CurrentDate.Sub(*message.PreviousDate))
 			message.Delta = &delta
 		}
 		log.Print(message, " Started")
@@ -108,4 +109,9 @@ func (w *Watcher) getState(name string) *LatestState {
 		}
 	}
 	return w.latestUpdate[name]
+}
+
+func formatDelta(delta time.Duration) string {
+	hours := int64(delta.Round(time.Hour).Hours())
+	return fmt.Sprintf("%d days %d hours", hours / 24, hours % 24)
 }
