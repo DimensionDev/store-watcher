@@ -11,6 +11,10 @@ import (
 	"github.com/thoas/go-funk"
 )
 
+const (
+	stateUnpublished = "[UNPUBLISHED]"
+)
+
 type Callback interface {
 	OnUpdate(*ChangedMessage) error
 	OnBackupLatestState(map[string]*LatestState)
@@ -83,6 +87,8 @@ func (w *Watcher) fetchVersion(target *Target, re *regexp.Regexp) (version strin
 	}
 	if response, err := http.DefaultClient.Do(request); err != nil {
 		return
+	} else if response.StatusCode == 404 {
+		return stateUnpublished
 	} else if response.StatusCode != 200 {
 		return
 	} else if data, err := ioutil.ReadAll(response.Body); err != nil {
@@ -90,9 +96,8 @@ func (w *Watcher) fetchVersion(target *Target, re *regexp.Regexp) (version strin
 	} else {
 		index := funk.IndexOfString(re.SubexpNames(), "version")
 		matched := re.FindStringSubmatch(string(data))
-		version = matched[index]
+		return matched[index]
 	}
-	return
 }
 
 func (w *Watcher) getState(name string) *LatestState {
